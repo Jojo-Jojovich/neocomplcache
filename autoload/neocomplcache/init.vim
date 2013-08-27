@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: init.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 24 Jun 2013.
+" Last Modified: 26 Aug 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -136,7 +136,9 @@ function! neocomplcache#init#_others() "{{{
   let s:completeopt_save = &completeopt
 
   " Set completefunc.
+  let completefunc_save = &l:completefunc
   let &completefunc = 'neocomplcache#complete#manual_complete'
+  let &l:completefunc = completefunc_save
 
   " For auto complete keymappings.
   call neocomplcache#mappings#define_default_mappings()
@@ -281,7 +283,7 @@ function! neocomplcache#init#_variables() "{{{
   call neocomplcache#util#set_default_dictionary(
         \'g:neocomplcache_keyword_patterns',
         \'erlang,int-erl',
-        \'^\s*-\h\w*\|\%(\h\w*:\)*\h\w\|\h[[:alnum:]_@]*')
+        \'^\s*-\h\w*\|\%(\h\w*:\)*\h\w*\|\h[[:alnum:]_@]*')
   call neocomplcache#util#set_default_dictionary(
         \'g:neocomplcache_keyword_patterns',
         \'html,xhtml,xml,markdown,eruby',
@@ -596,7 +598,8 @@ function! neocomplcache#init#_variables() "{{{
         \ 'g:neocomplcache_text_mode_filetypes', {})
   call neocomplcache#util#set_default_dictionary(
         \ 'g:neocomplcache_text_mode_filetypes',
-        \ 'text,help,tex,gitcommit,vcs-commit,markdown', 1)
+        \ 'hybrid,text,help,tex,gitcommit,gitrebase,vcs-commit,markdown,'.
+        \   'textile,creole,org,rdoc,mediawiki,rst,asciidoc,pod', 1) 
   "}}}
 
   " Initialize tags filter patterns. "{{{

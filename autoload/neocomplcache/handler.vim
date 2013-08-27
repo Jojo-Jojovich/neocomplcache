@@ -1,7 +1,7 @@
 "=============================================================================
 " FILE: handler.vim
 " AUTHOR: Shougo Matsushita <Shougo.Matsu@gmail.com>
-" Last Modified: 02 Jun 2013.
+" Last Modified: 26 Aug 2013.
 " License: MIT license  {{{
 "     Permission is hereby granted, free of charge, to any person obtaining
 "     a copy of this software and associated documentation files (the
@@ -30,18 +30,6 @@ set cpo&vim
 function! neocomplcache#handler#_on_moved_i() "{{{
   " Get cursor word.
   let cur_text = neocomplcache#get_cur_text(1)
-
-  " Make cache.
-  if cur_text =~ '^\s*$\|\s\+$'
-    if neocomplcache#is_enabled_source('buffer_complete')
-      " Caching current cache line.
-      call neocomplcache#sources#buffer_complete#caching_current_line()
-    endif
-    if neocomplcache#is_enabled_source('member_complete')
-      " Caching current cache line.
-      call neocomplcache#sources#member_complete#caching_current_line()
-    endif
-  endif
 
   call s:close_preview_window()
 endfunction"}}}
@@ -122,6 +110,18 @@ function! neocomplcache#handler#_do_auto_complete(event) "{{{
 
   " Prevent infinity loop.
   if s:is_skip_auto_complete(cur_text)
+    " Make cache.
+    if cur_text =~ '^\s*$\|\s\+$'
+      if neocomplcache#is_enabled_source('buffer_complete')
+        " Caching current cache line.
+        call neocomplcache#sources#buffer_complete#caching_current_line()
+      endif
+      if neocomplcache#is_enabled_source('member_complete')
+        " Caching current cache line.
+        call neocomplcache#sources#member_complete#caching_current_line()
+      endif
+    endif
+
     if g:neocomplcache_enable_debug
       echomsg 'Skipped.'
     endif
@@ -213,8 +213,16 @@ function! s:check_in_do_auto_complete() "{{{
     return 1
   endif
 
+  if &l:completefunc == ''
+    let &l:completefunc = 'neocomplcache#complete#manual_complete'
+  endif
+
   " Detect completefunc.
   if &l:completefunc !~# '^neocomplcache#'
+    if &l:buftype =~ 'nofile'
+      return 1
+    endif
+
     if g:neocomplcache_force_overwrite_completefunc
       " Set completefunc.
       let &l:completefunc = 'neocomplcache#complete#manual_complete'
@@ -279,7 +287,8 @@ function! s:is_skip_auto_complete(cur_text) "{{{
 endfunction"}}}
 function! s:close_preview_window() "{{{
   if g:neocomplcache_enable_auto_close_preview &&
-        \ bufname('%') !=# '[Command Line]' && winnr('$') != 1
+        \ bufname('%') !=# '[Command Line]' &&
+        \ winnr('$') != 1 && !&l:previewwindow
     " Close preview window.
     pclose!
   endif
